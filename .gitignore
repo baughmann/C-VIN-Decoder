@@ -1,5 +1,10 @@
 .DS_Store
 .idea
 cmake-build-debug
+CMakeFiles
+CMakeScripts
+cmake_install.cmake
+vindecgen.build
+vindecgen.xcodeproj
 .vs
 .vscode
