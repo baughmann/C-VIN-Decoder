@@ -8,6 +8,7 @@ struct DecodeResponse {
     std::string manufacturer;
     std::string country;
     std::string serialNumber;
+//    int year;
 };
 
 struct RawInfo {
@@ -62,7 +63,7 @@ class Decoder {
             }
         }
 
-        std::cout << "Failed to find value for " << key << " in file " << filename <<std::endl;
+        std::cout << "Failed to find value for " << key << " in file " << filename << std::endl;
 
         return nullptr;
     }
@@ -75,8 +76,40 @@ class Decoder {
         return getValue(manufacturerCode, "../resources/manufacturers.txt");
     }
 
+    // TODO: This doesn't appear to be working right....
+    int getYear(const char *_vin) {
+        static const int years[] = {
+                1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996,
+                1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+                2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030,
+                2031, 2032, 2033, 2034, 2035, 2036, 2037, 2038, 2039
+        };
+        std::string values = "ABCDEFGHJKLMNPRSTVWXY123456789ABCDEFGHJKLMNPRSTVWXY123456789";
+
+        auto pos7AsNum = _vin[7] - 48;
+        auto pos7IsNum = pos7AsNum > -1 && pos7AsNum < 10;
+
+        std::cout << "what is it? " << _vin[10] << " is " << values.find_first_of(_vin[10]) << "\n";
+
+        int i = 0;
+        // check
+        if(!pos7IsNum) {
+            i = values.find_last_of(_vin[10]);
+        } else {
+            i = values.find_first_of(_vin[10]);
+        }
+
+        return years[i];
+    }
+
     // TODO: well, there's DEFINITELY a better way to do this crap...
     static int translitChar(const char character) {
+        // handle converting numeric chars to ints
+        int charAsInt = character - 48;
+        if (charAsInt > -1 && charAsInt < 10) {
+            return charAsInt;
+        }
+
         static const std::array<std::string, 9> letterGroups{
                 "AB", "BKS", "CTL",
                 "DMU", "ENV", "FW",
@@ -91,10 +124,6 @@ class Decoder {
             }
             i++;
         }
-        // handle converting numeric chars to ints
-        int charAsInt = character - 48;
-        if (charAsInt > -1 && charAsInt < 10)
-            return charAsInt;
         // well, we tried
         return -1;
     }
@@ -119,6 +148,7 @@ class Decoder {
         result->serialNumber = data.serialNumber;
         result->manufacturer = getManufaturer(data.manufacturer.data());
         result->country = getCountry(data.country.data());
+//        result->year = getYear(vin);
 
         return result;
     }
@@ -140,8 +170,8 @@ class Decoder {
             return false;
         }
         // use static to avoid redefining
-        static int values[] = {1, 2, 3, 4, 5, 6, 7, 8, 0, 1, 2, 3, 4, 5, 0, 7, 0, 9, 2, 3, 4, 5, 6, 7, 8, 9};
-        static int weights[] = {8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2};
+        static const int values[] = {1, 2, 3, 4, 5, 6, 7, 8, 0, 1, 2, 3, 4, 5, 0, 7, 0, 9, 2, 3, 4, 5, 6, 7, 8, 9};
+        static const int weights[] = {8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2};
 
         int sum = 0;
         for (int i = 0; i < 17; i++) {
