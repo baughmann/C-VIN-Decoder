@@ -5,5 +5,5 @@ set(CMAKE_CXX_STANDARD 14)
 
 add_library(vindecgen src/Decoder.cpp src/Decoder.h)
 
-add_executable(testly src/testly.cpp)
+#add_executable(testly src/testly.cpp)
 
