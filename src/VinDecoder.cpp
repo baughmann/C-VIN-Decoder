@@ -3,14 +3,14 @@
 #include <fstream>
 #include <array>
 
-struct DecodeResponse {
+struct VinDecodeResponse {
     std::string manufacturer;
     std::string country;
     std::string serialNumber;
-//    int year;
+//    int year; // not reliable for now
 };
 
-struct RawInfo {
+struct VinRawInfo {
     std::string country;
     std::string manufacturer;
     std::string details;
@@ -20,12 +20,12 @@ struct RawInfo {
     std::string serialNumber;
 };
 
-class Decoder {
+class VinDecoder {
   private:
 
     // TODO: we can definitely do more here for US VINS, but EU VINS are the wild west. should we do more?
     template<typename T>
-    RawInfo getData(const T &_vin) {
+    VinRawInfo getData(const T &_vin) {
         static const int MADE_IN_START = 0;
         static const int MADE_IN_SIZE = 2;
         static const int MANUFATURER_START = 0;
@@ -39,7 +39,7 @@ class Decoder {
 
         auto vin = std::string(_vin);
 
-        auto rawInfo = RawInfo();
+        auto rawInfo = VinRawInfo();
         rawInfo.country = vin.substr(MADE_IN_START, MADE_IN_SIZE);
         rawInfo.manufacturer = vin.substr(MANUFATURER_START, MANUFACTURER_SIZE);
         rawInfo.details = vin.substr(DETAILS_START, DETAILS_SIZE);
@@ -68,11 +68,11 @@ class Decoder {
     }
 
     std::string getCountry(const char *countryCode) {
-        return getValue(countryCode, "countries.txt");
+        return getValue(countryCode, "vindec_resource_countries.txt");
     }
 
     std::string getManufaturer(const char *manufacturerCode) {
-        return getValue(manufacturerCode, "manufacturers.txt");
+        return getValue(manufacturerCode, "vindec_resource_manufacturers.txt");
     }
 
     // TODO: This doesn't appear to be working right....
@@ -133,21 +133,21 @@ class Decoder {
      * Gets some basic vehicle information about the vehicle whose VIN you're checking.
      *
      * @param vin The VIN you wish to check.
-     * @return A `DecodeResponse` if the VIN is valid, and a `nullptr` if the VIN is invalid.
+     * @return A `VinDecodeResponse` if the VIN is valid, and a `nullptr` if the VIN is invalid.
      */
     template<typename T>
-    DecodeResponse *decode(const T &vin) {
+    VinDecodeResponse *decode(const T &vin) {
         if (!validate(vin)) {
             return nullptr;
         }
 
-        RawInfo data = getData(vin);
+        VinRawInfo data = getData(vin);
         // TODO: Do we *really* want to heap alloc this?
-        auto result = new DecodeResponse();
+        auto result = new VinDecodeResponse();
         result->serialNumber = data.serialNumber;
         result->manufacturer = getManufaturer(data.manufacturer.data());
         result->country = getCountry(data.country.data());
-//        result->year = getYear(vin);
+//        result->year = getYear(vin); // not reliable for now
 
         return result;
     }
