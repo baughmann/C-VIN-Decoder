@@ -1,4 +1,4 @@
-# 🚗 C++ VIN Decoder / Validator
+# 🚗 C++ VIN Decoder / Validator 🚙
 A simple C++ library for validation and basic decoding of Vehicle Identification Numbers
 
 ### Features
