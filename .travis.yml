@@ -3,7 +3,7 @@ compiler:
 - gcc
 
 script:
-- bash install.sh
+- bash build_and_test.sh
 
 notifications:
   email: false
