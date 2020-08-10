@@ -68,11 +68,11 @@ class Decoder {
     }
 
     std::string getCountry(const char *countryCode) {
-        return getValue(countryCode, "../resources/countries.txt");
+        return getValue(countryCode, "countries.txt");
     }
 
     std::string getManufaturer(const char *manufacturerCode) {
-        return getValue(manufacturerCode, "../resources/manufacturers.txt");
+        return getValue(manufacturerCode, "manufacturers.txt");
     }
 
     // TODO: This doesn't appear to be working right....
