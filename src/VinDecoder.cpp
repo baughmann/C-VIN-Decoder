@@ -7,6 +7,7 @@ struct VinDecodeResponse {
     std::string manufacturer;
     std::string country;
     std::string serialNumber;
+    bool isValid;
 //    int year; // not reliable for now
 };
 
@@ -133,34 +134,37 @@ class VinDecoder {
      * Gets some basic vehicle information about the vehicle whose VIN you're checking.
      *
      * @param vin The VIN you wish to check.
-     * @return A `VinDecodeResponse` if the VIN is valid, and a `nullptr` if the VIN is invalid.
+     * @return A pointer to `VinDecodeResponse` containing the properties `isValid`, `manufacturer`, `serialNumber` and `country`
      */
     template<typename T>
     VinDecodeResponse *decode(const T &vin) {
+        // TODO: Do we *really* want to heap alloc this?
+        auto result = new VinDecodeResponse();
+
         if (!validate(vin)) {
-            return nullptr;
+            result->isValid = false;
+            return result;
         }
 
         VinRawInfo data = getData(vin);
-        // TODO: Do we *really* want to heap alloc this?
-        auto result = new VinDecodeResponse();
         result->serialNumber = data.serialNumber;
         result->manufacturer = getManufaturer(data.manufacturer.data());
         result->country = getCountry(data.country.data());
+        result->isValid = true;
 //        result->year = getYear(vin); // not reliable for now
 
         return result;
     }
 
+    // Implementation of: https://en.wikibooks.org/wiki/Vehicle_Identification_Numbers_(VIN_codes)/Check_digit
+    // Inspired by: https://gist.github.com/ubergesundheit/5626679
+    //  and https://github.com/frankely/vin-decoder/blob/master/index.js
     /**
      * Checks whether or not the VIN appears to be a valid VIN.
      *
      * @param _vin The VIN you wish to check.
      * @return A boolean indicating whether or not the vin is valid.
      */
-    // Implementation of: https://en.wikibooks.org/wiki/Vehicle_Identification_Numbers_(VIN_codes)/Check_digit
-    // Inspired by: https://gist.github.com/ubergesundheit/5626679
-    //  and https://github.com/frankely/vin-decoder/blob/master/index.js
     template<typename T>
     bool validate(const T &_vin) {
         auto vin = std::string(_vin);

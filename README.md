@@ -24,15 +24,20 @@ include_directories(ThirdParty/vindec/include)
 ```
 
 ### Usage
-#### `decode()`
-Returns `nullptr` if the VIN was invalid, and a `VinDecodeResponse` if validation was successful.
+#### Decoding a VIN
+Returns a `VinDecodeResponse`. The `isValid` property will tell you if teh VIN is valid and if the `manufacturer`, `country`, and `serialNumber` fields are populated.
 ```
 #include <VinDecoder.h>
 
 int main() {
-    auto decoder = new VinDecoder();
-    auto vehicleInfo = decoder->decode("WMWMS335X9TY38985");
-    std::cout << vehicleInfo->country << std::endl; // Germany
+    auto decoder = VinDecoder();
+    auto vehicleInfo = decoder.decode("WMWMS335X9TY38985");
+
+    if(vehicleInfo->isValid) { // true
+        std::cout << vehicleInfo->country << std::endl; // Germany
+        std::cout << vehicleInfo->manufacturer << std::endl; // MINI
+        std::cout << vehicleInfo->serialNumber << std::endl; // T
+    }
 }
 ```
 `VinDecodeResponse` looks like this:
@@ -41,6 +46,7 @@ struct VinDecodeResponse {
     std::string manufacturer;
     std::string country;
     std::string serialNumber;
+    bool isValid;
 };
 ```
 ### Validating a VIN
@@ -49,8 +55,8 @@ Returns `true` if the VIN is valid and `false` if it isn't.
 #include <VinDecoder.h>
 
 int main() {
-    auto decoder = new VinDecoder();
-    auto isValid = decoder->decode("WMWMS335X9TY38985");
+    auto decoder = VinDecoder();
+    auto isValid = decoder.validate("WMWMS335X9TY38985");
     std::cout << isValid << std::endl; // true
 }
 ```

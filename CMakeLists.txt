@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.17)
 set(CMAKE_CXX_STANDARD 14)
-project(vindec)
+project(vindec 
+        VERSION 0.1 
+        DESCRIPTION "Simple utility to decode and validate Vehicle Identification Numbers"
+        HOMEPAGE_URL "https://github.com/baughmann/Cpp-VIN-Decoder"
+        )
 
 enable_testing()
 include(GoogleTest)
