@@ -2,13 +2,13 @@
 #include <string>
 #include <fstream>
 #include <array>
+#include <Resources.h>
 
 struct VinDecodeResponse {
     std::string manufacturer;
     std::string country;
     std::string serialNumber;
     bool isValid;
-//    int year; // not reliable for now
 };
 
 struct VinRawInfo {
@@ -22,7 +22,7 @@ struct VinRawInfo {
 };
 
 class VinDecoder {
-  private:
+private:
 
     // TODO: we can definitely do more here for US VINS, but EU VINS are the wild west. should we do more?
     template<typename T>
@@ -52,37 +52,32 @@ class VinDecoder {
         return rawInfo;
     }
 
-    std::string getValue(const char *key, const char *filename) {
-        std::ifstream infile(filename);
-        std::string line;
-        while (std::getline(infile, line)) {
+    template<typename T>
+    std::string getValue(const char *key, const T& lines) {
+        for (std::string line : lines) {
             auto eqPos = line.find('=');
             auto k = line.substr(0, eqPos);
-            if (key == k) {
+            if(k == key) {
                 return line.substr(eqPos + 1);
             }
         }
-
-        std::cout << "Failed to find value for " << key << " in file " << filename << std::endl;
-
-        return nullptr;
     }
 
     std::string getCountry(const char *countryCode) {
-        return getValue(countryCode, "vindec_resource_countries.txt");
+        return getValue(countryCode, countries);
     }
 
     std::string getManufaturer(const char *manufacturerCode) {
-        return getValue(manufacturerCode, "vindec_resource_manufacturers.txt");
+        return getValue(manufacturerCode, manufacturers);
     }
 
     // TODO: This doesn't appear to be working right....
     int getYear(const char *_vin) {
-        static const int years[] = {
-                1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996,
-                1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
-                2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030,
-                2031, 2032, 2033, 2034, 2035, 2036, 2037, 2038, 2039
+        static const int years[] ={
+            1980, 1981, 1982, 1983, 1984, 1985, 1986, 1987, 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996,
+            1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+            2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030,
+            2031, 2032, 2033, 2034, 2035, 2036, 2037, 2038, 2039
         };
         std::string values = "ABCDEFGHJKLMNPRSTVWXY123456789ABCDEFGHJKLMNPRSTVWXY123456789";
 
@@ -93,9 +88,10 @@ class VinDecoder {
 
         int i = 0;
         // check
-        if(!pos7IsNum) {
+        if (!pos7IsNum) {
             i = values.find_last_of(_vin[10]);
-        } else {
+        }
+        else {
             i = values.find_first_of(_vin[10]);
         }
 
@@ -111,9 +107,9 @@ class VinDecoder {
         }
 
         static const std::array<std::string, 9> letterGroups{
-                "AB", "BKS", "CTL",
-                "DMU", "ENV", "FW",
-                "GPX", "HY", "RZ"
+            "AB", "BKS", "CTL",
+            "DMU", "ENV", "FW",
+            "GPX", "HY", "RZ"
         };
 
         // handle converting letter chars to ints
@@ -129,7 +125,7 @@ class VinDecoder {
     }
 
 
-  public:
+public:
     /**
      * Gets some basic vehicle information about the vehicle whose VIN you're checking.
      *
@@ -151,7 +147,7 @@ class VinDecoder {
         result->manufacturer = getManufaturer(data.manufacturer.data());
         result->country = getCountry(data.country.data());
         result->isValid = true;
-//        result->year = getYear(vin); // not reliable for now
+        //        result->year = getYear(vin); // not reliable for now
 
         return result;
     }
@@ -173,8 +169,8 @@ class VinDecoder {
             return false;
         }
         // use static to avoid redefining
-        static const int values[] = {1, 2, 3, 4, 5, 6, 7, 8, 0, 1, 2, 3, 4, 5, 0, 7, 0, 9, 2, 3, 4, 5, 6, 7, 8, 9};
-        static const int weights[] = {8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2};
+        static const int values[] ={ 1, 2, 3, 4, 5, 6, 7, 8, 0, 1, 2, 3, 4, 5, 0, 7, 0, 9, 2, 3, 4, 5, 6, 7, 8, 9 };
+        static const int weights[] ={ 8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2 };
 
         int sum = 0;
         for (int i = 0; i < 17; i++) {
@@ -182,18 +178,18 @@ class VinDecoder {
             auto character = vin[i];
 
             // handle letters
-            if (character > ('A' - 1) && character < ('Z' + 1)) {
+            if (character >('A' - 1) && character < ('Z' + 1)) {
                 value = values[character - 'A'];
                 // don't allow 0
                 if (!value) {
                     return false;
                 }
             }
-                // handle numbers
-            else if (character > ('0' - 1) && character < ('9' + 1)) {
+            // handle numbers
+            else if (character >('0' - 1) && character < ('9' + 1)) {
                 value = character - '0';
             }
-                // handle bad characters
+            // handle bad characters
             else {
                 return false;
             }

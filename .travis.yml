@@ -1,0 +1,9 @@
+language: cpp
+compiler:
+- gcc
+
+script:
+- bash install.sh
+
+notifications:
+  email: false

@@ -16,8 +16,3 @@ set(SOURCES src/VinDecoder.cpp)
 
 add_library(vindec STATIC ${HEADERS} ${SOURCES})
 target_include_directories(vindec PUBLIC ${PROJECT_SOURCE_DIR}/include)
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/vindec_resource_countries.txt
-        ${CMAKE_BINARY_DIR} COPYONLY)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/vindec_resource_manufacturers.txt
-        ${CMAKE_BINARY_DIR} COPYONLY)
