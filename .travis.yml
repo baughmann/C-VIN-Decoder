@@ -3,7 +3,11 @@ compiler:
 - gcc
 
 script:
-- bash build_and_test.sh
+- mkdir -p build
+- cd build
+- cmake .. 
+- make 
+- ctest -VV
 
 notifications:
   email: false
