@@ -1,6 +1,9 @@
 # 🚗 C++ VIN Decoder / Validator 🚙
 A simple C++ library for validation and basic decoding of Vehicle Identification Numbers
 
+[![Build Status](https://travis-ci.com/baughmann/Cpp-VIN-Decoder.svg?branch=master)](https://travis-ci.com/baughmann/Cpp-VIN-Decoder.svg?branch=master)
+
+
 ### Features
 - Easily validate VIN numbers using the "security" check digit
 - Quickly get basic information about a vehicle"
