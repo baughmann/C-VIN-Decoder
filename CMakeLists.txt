@@ -1,9 +1,17 @@
 cmake_minimum_required(VERSION 3.17)
-project(vindecgen)
-
 set(CMAKE_CXX_STANDARD 14)
+project(vindec)
 
-add_library(vindec SHARED include/VinDecoder.h src/VinDecoder.cpp)
+enable_testing()
+include(GoogleTest)
+add_subdirectory(ThirdParty/google/googletest)
+add_subdirectory(tests)
+
+set(HEADERS include/VinDecoder.h)
+set(SOURCES src/VinDecoder.cpp)
+
+add_library(vindec STATIC ${HEADERS} ${SOURCES})
+target_include_directories(vindec PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/vindec_resource_countries.txt
         ${CMAKE_BINARY_DIR} COPYONLY)
