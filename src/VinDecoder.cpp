@@ -61,6 +61,7 @@ private:
                 return line.substr(eqPos + 1);
             }
         }
+        return std::string();
     }
 
     std::string getCountry(const char *countryCode) {
@@ -86,7 +87,7 @@ private:
 
         std::cout << "what is it? " << _vin[10] << " is " << values.find_first_of(_vin[10]) << "\n";
 
-        int i = 0;
+        size_t i = 0;
         // check
         if (!pos7IsNum) {
             i = values.find_last_of(_vin[10]);
