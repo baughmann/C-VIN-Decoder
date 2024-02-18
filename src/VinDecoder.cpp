@@ -131,14 +131,15 @@ public:
      * Gets some basic vehicle information about the vehicle whose VIN you're checking.
      *
      * @param vin The VIN you wish to check.
+     * @param check_checksum true to check north americain checksum
      * @return A pointer to `VinDecodeResponse` containing the properties `isValid`, `manufacturer`, `serialNumber` and `country`
      */
     template<typename T>
-    VinDecodeResponse *decode(const T &vin) {
+    VinDecodeResponse *decode(const T &vin, bool check_checksum) {
         // TODO: Do we *really* want to heap alloc this?
         auto result = new VinDecodeResponse();
 
-        if (!validate(vin)) {
+        if (!validate(vin, check_checksum)) {
             result->isValid = false;
             return result;
         }
@@ -153,6 +154,17 @@ public:
         return result;
     }
 
+    /**
+     * Gets some basic vehicle information about the vehicle whose VIN you're checking.
+     *
+     * @param vin The VIN you wish to check.
+     * @return A pointer to `VinDecodeResponse` containing the properties `isValid`, `manufacturer`, `serialNumber` and `country`
+     */
+    template<typename T>
+    VinDecodeResponse *decode(const T &vin) {
+        return decode(vin, true);
+    }
+
     // Implementation of: https://en.wikibooks.org/wiki/Vehicle_Identification_Numbers_(VIN_codes)/Check_digit
     // Inspired by: https://gist.github.com/ubergesundheit/5626679
     //  and https://github.com/frankely/vin-decoder/blob/master/index.js
@@ -160,10 +172,11 @@ public:
      * Checks whether or not the VIN appears to be a valid VIN.
      *
      * @param _vin The VIN you wish to check.
+     * @param check_checksum true to check north americain checksum
      * @return A boolean indicating whether or not the vin is valid.
      */
     template<typename T>
-    bool validate(const T &_vin) {
+    bool validate(const T &_vin, bool check_checksum) {
         auto vin = std::string(_vin);
 
         if (vin.size() != 17) {
@@ -205,6 +218,17 @@ public:
             || (sum == translitChar(checkDigit)))
             return true;
         else
-            return false;
+            return !check_checksum;
+    }
+
+    /**
+     * Checks whether or not the VIN appears to be a valid VIN.
+     *
+     * @param _vin The VIN you wish to check.
+     * @return A boolean indicating whether or not the vin is valid.
+     */
+    template<typename T>
+    bool validate(const T &_vin) {
+        return validate(_vin, true);
     }
 };
